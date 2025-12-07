@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#define TICKS_CURRENT 10 // 1kHz at 10kHz tick
+#define TICKS_CURRENT 4 // 2kHz
     
 #define CURRENT_HISTORY_LENGTH (16)
 #define CURRENT_HISTORY_SHIFT (4)

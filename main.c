@@ -35,6 +35,7 @@
 #include "mcc_generated_files/system/system.h"
 #include "current.h"
 #include "pwm_control.h"
+#include "fault_monitor.h"
 
 /*
     Main application
@@ -63,6 +64,10 @@ void init_ticks(void){
     TMR1_OverflowCallbackRegister(tick);
 }
 
+uint16_t get_vo(){
+    return ADC_ChannelSelectAndConvert(5);
+}
+
 int main(void)
 {
     SYSTEM_Initialize();
@@ -70,6 +75,7 @@ int main(void)
     init_ticks();
     setup_current(&current_model);
     setup_pwm();
+    setup_fault_monitor();
     // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts 
     // If using interrupts in PIC Mid-Range Compatibility Mode you need to enable the Global and Peripheral Interrupts 
     // Use the following macros to: 
@@ -95,8 +101,14 @@ int main(void)
             tick_flag_current = 0;
         }
         if (tick_flag_pwm){
-            update_pwm(&current_model);
+            IO_RA5_SetHigh();
+            uint16_t current = get_latest_current(&current_model);
+            uint16_t vo = get_vo();
+            update_fault_monitor(current, vo);
+            
+            update_pwm(&current_model, is_fault_active());
             tick_flag_pwm = 0;
+            IO_RA5_SetLow();
         }
-    }    
+    }
 }

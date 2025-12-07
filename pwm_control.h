@@ -14,14 +14,14 @@
 extern "C" {
 #endif
 
-#define TICKS_PWM 100 // 100Hz at 10kHz tick
+#define TICKS_PWM 64 // 125Hz
     
 #define MAX_TARGET_CURRENT 100 // 200mV at 2.048mV per ADC step
-#define PWM_PERIOD 2000 // 213 // 150kHz
+#define PWM_PERIOD 213 // 150kHz
 #define MAX_PWM_DC 128 // DC of 0.6 at 213 steps (150kHz)
-#define PWM_POS_INC 1 // 0 to 100% DC in 2.13s at 100Hz update
-#define PWM_NEG_INC -2 // 100 to 0% DC in 1.07s at 100Hz update
-#define CURRENT_DEADBAND 10 // 20mV
+#define PWM_POS_INC 1
+#define PWM_NEG_INC -2
+#define CURRENT_DEADBAND 10 // 40mV = 200mA
     
 int16_t pwm_dc;
 uint16_t pwm_target_current;
@@ -30,7 +30,7 @@ void setup_pwm(void);
 void set_dc(int16_t dc);
 void set_target_current(uint16_t new_target_current);
 void update_dc(uint16_t read_current);
-void update_pwm(current_model_t *c_model);
+void update_pwm(current_model_t *c_model, uint8_t fault_active);
 
 #ifdef	__cplusplus
 }

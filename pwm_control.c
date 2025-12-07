@@ -55,8 +55,8 @@ void update_dc(uint16_t read_current){
     set_dc(new_dc);
 }
 
-void update_pwm(current_model_t *c_model){
-    if (is_current_valid(c_model)){
+void update_pwm(current_model_t *c_model, uint8_t fault_active){
+    if (is_current_valid(c_model) && (fault_active == 0)){
         update_dc(get_latest_current(c_model));
     } else {
         set_dc(0);
