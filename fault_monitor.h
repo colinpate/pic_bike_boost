@@ -14,10 +14,10 @@ extern "C" {
     
 // This runs when PWM updates
     
-#define FAULT_CURRENT_THRESH 200 // 400mA
+#define FAULT_CURRENT_THRESH 300 // 1.5A (0.2mV/mA)
 #define FAULT_CURRENT_DEBOUNCE 10 // pwm period is 8ms, so this would be 80ms
     
-#define FAULT_VO_THRESH 1000 // 2V ADC reading
+#define FAULT_VO_THRESH 1000 // 2V ADC reading (22Vo)
 #define FAULT_VO_DEBOUNCE 10 // 80ms
     
 void setup_fault_monitor();

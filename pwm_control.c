@@ -30,7 +30,6 @@ void set_target_current(uint16_t new_target_current){
 
 void update_dc(uint16_t read_current){
     int16_t increment = 0;
-    int16_t new_dc = pwm_dc;
     
     if (read_current < CURRENT_DEADBAND){ // prevent unsigned int underflow
         if (pwm_target_current > CURRENT_DEADBAND){
@@ -44,6 +43,7 @@ void update_dc(uint16_t read_current){
         }
     }
     
+    int16_t new_dc = pwm_dc;
     if ((new_dc + increment) < 0){
         new_dc = 0;
     } else if ((new_dc + increment) > MAX_PWM_DC) {
