@@ -76,6 +76,8 @@ int main(void)
     setup_current(&current_model);
     setup_pwm();
     setup_fault_monitor();
+    
+    __delay_ms(500);
 
     // Enable the Global Interrupts 
     INTERRUPT_GlobalInterruptEnable(); 
@@ -83,7 +85,7 @@ int main(void)
     // Enable the Peripheral Interrupts 
     INTERRUPT_PeripheralInterruptEnable();
     
-    set_target_current(100); // 500mA (0.2mV/mA)
+    set_target_current(100); // (2mV/step) = 200mV * 5mA/mV = 1A
     
     while(1)
     {

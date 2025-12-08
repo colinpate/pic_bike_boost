@@ -16,12 +16,12 @@ extern "C" {
 
 #define TICKS_PWM 64 // 125Hz
     
-#define MAX_TARGET_CURRENT 100 // 200mV at 2.048mV per ADC step
+#define MAX_TARGET_CURRENT 200 // 400mV = 2A
 #define PWM_PERIOD 213 // 150kHz
 #define MAX_PWM_DC 128 // DC of 0.6 at 213 steps (150kHz)
 #define PWM_POS_INC 1
 #define PWM_NEG_INC -2
-#define CURRENT_DEADBAND 10 // 40mV = 200mA
+#define CURRENT_DEADBAND 5 // 20mV on either side = 0.1A = 0.2A total deadband
     
 int16_t pwm_dc;
 uint16_t pwm_target_current;
