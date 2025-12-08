@@ -34,6 +34,7 @@
 
 #include "../pins.h"
 
+void (*IO_RA5_InterruptHandler)(void);
 
 void PIN_MANAGER_Initialize(void)
 {
@@ -58,7 +59,7 @@ void PIN_MANAGER_Initialize(void)
     /**
     WPUx registers
     */
-    WPUA = 0x3F;
+    WPUA = 0x39;
     WPUC = 0x3F;
     OPTION_REGbits.nWPUEN = 0x0;
   
@@ -92,17 +93,55 @@ void PIN_MANAGER_Initialize(void)
     IOCx registers 
     */
     IOCAP = 0x0;
-    IOCAN = 0x0;
+    IOCAN = 0x20;
     IOCAF = 0x0;
     IOCCP = 0x0;
     IOCCN = 0x0;
     IOCCF = 0x0;
 
+    IO_RA5_SetInterruptHandler(IO_RA5_DefaultInterruptHandler);
 
+    // Enable INTCONbits.IOCIE interrupt 
+    INTCONbits.IOCIE = 1; 
 }
   
 void PIN_MANAGER_IOC(void)
 {
+    // interrupt on change for pin IO_RA5}
+    if(IOCAFbits.IOCAF5 == 1)
+    {
+        IO_RA5_ISR();  
+    }
+}
+   
+/**
+   IO_RA5 Interrupt Service Routine
+*/
+void IO_RA5_ISR(void) {
+
+    // Add custom IOCAF5 code
+
+    // Call the interrupt handler for the callback registered at runtime
+    if(IO_RA5_InterruptHandler)
+    {
+        IO_RA5_InterruptHandler();
+    }
+    IOCAFbits.IOCAF5 = 0;
+}
+
+/**
+  Allows selecting an interrupt handler for IOCAF5 at application runtime
+*/
+void IO_RA5_SetInterruptHandler(void (* InterruptHandler)(void)){
+    IO_RA5_InterruptHandler = InterruptHandler;
+}
+
+/**
+  Default interrupt handler for IOCAF5
+*/
+void IO_RA5_DefaultInterruptHandler(void){
+    // add your IO_RA5 interrupt custom code
+    // or set custom function using IO_RA5_SetInterruptHandler()
 }
 /**
  End of File
