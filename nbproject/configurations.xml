@@ -35,6 +35,7 @@
       <itemPath>current.h</itemPath>
       <itemPath>pwm_control.h</itemPath>
       <itemPath>fault_monitor.h</itemPath>
+      <itemPath>ui.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -91,6 +92,7 @@
       <itemPath>current.c</itemPath>
       <itemPath>pwm_control.c</itemPath>
       <itemPath>fault_monitor.c</itemPath>
+      <itemPath>ui.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
