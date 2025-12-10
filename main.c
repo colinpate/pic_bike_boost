@@ -36,15 +36,18 @@
 #include "current.h"
 #include "pwm_control.h"
 #include "fault_monitor.h"
+#include "ui.h"
 
 /*
     Main application
 */
 
 current_model_t current_model;
+ui_model_t ui_model;
 
 uint8_t tick_flag_current;
 uint8_t tick_flag_pwm;
+uint8_t tick_flag_ui;
 uint32_t tick_counter;
 
 void tick(void){
@@ -55,53 +58,71 @@ void tick(void){
     if ((tick_counter % TICKS_CURRENT) == 0){
         tick_flag_current = 1;
     }
+    if ((tick_counter % TICKS_UI) == 0){
+        tick_flag_ui = 1;
+    }
 }
 
 void init_ticks(void){
     tick_counter = 0;
     tick_flag_current = 0;
     tick_flag_pwm = 0;
+    tick_flag_ui = 0;
     TMR1_OverflowCallbackRegister(tick);
 }
 
-uint16_t get_vo(){
-    return ADC_ChannelSelectAndConvert(5);
+void disable_outputs(){
+    IO_RA1_SetDigitalInput(); // LED1
+    IO_RA2_SetDigitalInput(); // LED2
+    IO_RC4_SetDigitalInput(); // PWM
 }
 
 int main(void)
 {
-    SYSTEM_Initialize();
-    
-    init_ticks();
-    setup_current(&current_model);
-    setup_pwm();
-    setup_fault_monitor();
-    
     __delay_ms(500);
 
-    // Enable the Global Interrupts 
-    INTERRUPT_GlobalInterruptEnable(); 
+    uint8_t go_to_sleep = 0;
 
-    // Enable the Peripheral Interrupts 
-    INTERRUPT_PeripheralInterruptEnable();
-    
-    set_target_current(100); // (2mV/step) = 200mV * 5mA/mV = 1A
-    
-    while(1)
-    {
-        if (tick_flag_current){
-            update_current(&current_model);
-            tick_flag_current = 0;
+    while (1){
+
+        SYSTEM_Initialize();
+        
+        init_ticks();
+        setup_current(&current_model);
+        setup_pwm();
+        setup_fault_monitor();
+        setup_ui();
+
+        // Enable the Global Interrupts 
+        INTERRUPT_GlobalInterruptEnable(); 
+
+        // Enable the Peripheral Interrupts 
+        INTERRUPT_PeripheralInterruptEnable();
+        
+        while(!go_to_sleep)
+        {
+            if (tick_flag_current){
+                tick_flag_current = 0;
+                update_current(&current_model);
+            }
+            if (tick_flag_pwm){
+                tick_flag_pwm = 0;
+                uint16_t current = get_latest_current(&current_model);
+                update_fault_monitor(current);
+                
+                update_pwm(&current_model, is_fault_active());
+            }
+            if (tick_flag_ui) {
+                tick_flag_ui = 0;
+                go_to_sleep = update_ui(&ui_model);
+            }
         }
-        if (tick_flag_pwm){
-            IO_RA5_SetHigh();
-            uint16_t current = get_latest_current(&current_model);
-            uint16_t vo = get_vo();
-            update_fault_monitor(current, vo);
-            
-            update_pwm(&current_model, is_fault_active());
-            tick_flag_pwm = 0;
-            IO_RA5_SetLow();
-        }
+
+        // disable the timer interrupt
+        TMR1_Deinitialize();
+        // turn the outputs to inputs
+        disable_outputs();
+        // sleep now
+        POWER_LowPowerModeEnter();
     }
 }

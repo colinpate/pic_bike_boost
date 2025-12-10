@@ -4,18 +4,22 @@
 
 uint16_t fault_counter;
 
+uint16_t get_vo(){
+    return ADC_ChannelSelectAndConvert(VO_ADC_CHANNEL);
+}
+
 void setup_fault_monitor(){
     fault_counter = 0;
 }
 
-void update_fault_monitor(uint16_t current, uint16_t v_out){
+void update_fault_monitor(uint16_t filtered_current){
     if (fault_counter > 0){
         fault_counter -= 1;
     }
-    if (current > FAULT_CURRENT_THRESH){
+    if (filtered_current > FAULT_CURRENT_THRESH){
         fault_counter = FAULT_CURRENT_DEBOUNCE;
     }
-    if (v_out > FAULT_VO_THRESH){
+    if (get_vo() > FAULT_VO_THRESH){
         fault_counter = FAULT_VO_DEBOUNCE;
     }
 }
