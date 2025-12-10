@@ -23,6 +23,8 @@ extern "C" {
 
 #define BUTTON_PRESS_COUNT_POWER 20 // 0.7s at 31Hz
 
+#define LED_BLINK_PERIOD 16 // 0.5s at 31Hz
+
 typedef enum
 {
     BRIGHTNESS_SLEEP = 0,

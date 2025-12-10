@@ -80,6 +80,10 @@ uint8_t update_state_from_button(ui_model_t* ui_model){
     return go_to_sleep;
 }
 
+void set_status_leds(uint16_t green_pwm_level, bool off){
+    
+}
+
 uint8_t update_ui(ui_model_t* ui_model){
     uint8_t go_to_sleep = update_state_from_button(ui_model);
 
@@ -90,6 +94,13 @@ uint8_t update_ui(ui_model_t* ui_model){
             target_current = max_current; 
         }
         set_target_current(target_current);
+
+        // set status LEDs
+        if (ui_model->battery_undervoltage){
+            if (ui_model->led_count < (LED_BLINK_PERIOD / 2)) {
+                
+            }
+        }
     } else {
         set_target_current(0);
     }
