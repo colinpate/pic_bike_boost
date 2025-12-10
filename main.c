@@ -33,6 +33,7 @@
     THIS SOFTWARE.
 */
 #include "mcc_generated_files/system/system.h"
+#include "mcc_generated_files/power/power.h"
 #include "current.h"
 #include "pwm_control.h"
 #include "fault_monitor.h"
@@ -79,9 +80,8 @@ void disable_outputs(){
 
 int main(void)
 {
-    __delay_ms(500);
-
-    uint8_t go_to_sleep = 0;
+    //__delay_ms(500);
+    setup_ui(&ui_model);
 
     while (1){
 
@@ -91,13 +91,14 @@ int main(void)
         setup_current(&current_model);
         setup_pwm();
         setup_fault_monitor();
-        setup_ui();
 
         // Enable the Global Interrupts 
         INTERRUPT_GlobalInterruptEnable(); 
 
         // Enable the Peripheral Interrupts 
         INTERRUPT_PeripheralInterruptEnable();
+
+        uint8_t go_to_sleep = 0;
         
         while(!go_to_sleep)
         {
@@ -122,7 +123,12 @@ int main(void)
         TMR1_Deinitialize();
         // turn the outputs to inputs
         disable_outputs();
+        
+        // Enable the interrupt
+        IOCAN = 0x20;
         // sleep now
         POWER_LowPowerModeEnter();
+        // Disable the interrupt
+        IOCAN = 0x0;
     }
 }

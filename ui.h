@@ -32,7 +32,6 @@ typedef enum
 } brightness_mode_t;
 
 typedef struct {
-    ui_state_t ui_state;
     brightness_mode_t brightness;
     uint8_t button_press_count;
     uint8_t led_count;

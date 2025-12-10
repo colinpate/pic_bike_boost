@@ -69,7 +69,10 @@ void __interrupt() INTERRUPT_InterruptManager (void)
         {
             TMR1_OverflowISR();
         } 
-        else
+        else if (IOCAFbits.IOCAF5 == 1)
+        {
+            IOCAFbits.IOCAF5 = 0;
+        } else
         {
             //Unhandled Interrupt
         }
