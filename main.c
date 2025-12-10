@@ -32,8 +32,10 @@
     EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
     THIS SOFTWARE.
 */
+
 #include "mcc_generated_files/system/system.h"
 #include "mcc_generated_files/power/power.h"
+#include "global_defs.h"
 #include "current.h"
 #include "pwm_control.h"
 #include "fault_monitor.h"
@@ -86,11 +88,14 @@ int main(void)
     while (1){
 
         SYSTEM_Initialize();
-        
         init_ticks();
         setup_current(&current_model);
         setup_pwm();
         setup_fault_monitor();
+        
+        if (DEBUG){
+            IO_RA1_SetDigitalInput(); // Set the PGCLK pin to input if debugging
+        }
 
         // Enable the Global Interrupts 
         INTERRUPT_GlobalInterruptEnable(); 
@@ -115,7 +120,7 @@ int main(void)
             }
             if (tick_flag_ui) {
                 tick_flag_ui = 0;
-                go_to_sleep = update_ui(&ui_model);
+                go_to_sleep = update_ui(&ui_model, is_fault_active());
             }
         }
 

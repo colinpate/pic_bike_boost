@@ -5,14 +5,7 @@
         <group>
             <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/ui.c</file>
             <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/ui.h</file>
-            <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/current.h</file>
-            <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/mcc_generated_files/adc/src/adc.c</file>
-            <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/current.c</file>
             <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/main.c</file>
-            <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/fault_monitor.h</file>
-            <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/pwm_control.c</file>
-            <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/pwm_control.h</file>
-            <file>file:/C:/Users/Colin/MPLABXProjects/bike_boost.X/fault_monitor.c</file>
         </group>
     </open-files>
 </project-private>

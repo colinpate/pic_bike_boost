@@ -13,17 +13,7 @@ extern "C" {
 #endif
 
 #include "mcc_generated_files/system/system.h"
-
-#define TICKS_UI 256 // 31Hz
-
-#define BATT_V_ADC_CHANNEL 4 // AN4
-#define BATT_UNDERVOLTAGE 100
-#define BATT_UNDERVOLTAGE_RELEASE 110
-#define BATT_UNDERVOLTAGE_MAX_CURRENT 0
-
-#define BUTTON_PRESS_COUNT_POWER 20 // 0.7s at 31Hz
-
-#define LED_BLINK_PERIOD 16 // 0.5s at 31Hz
+#include "global_defs.h"
 
 typedef enum
 {
@@ -45,8 +35,10 @@ typedef struct {
 void setup_ui(ui_model_t* ui_model);
 void update_battery_voltage(ui_model_t* ui_model);
 uint8_t get_max_current (ui_model_t* ui_model);
-uint8_t update_ui(ui_model_t* ui_model);
 uint8_t update_state_from_button(ui_model_t* ui_model);
+void set_status_leds(uint16_t green_pwm_level, bool off);
+uint16_t batt_level_to_pwm(uint16_t batt_level);
+uint8_t update_ui(ui_model_t* ui_model, bool fault);
 
 #ifdef	__cplusplus
 }

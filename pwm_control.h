@@ -6,6 +6,7 @@
  */
 #include "mcc_generated_files/system/system.h"
 #include "current.h"
+#include "global_defs.h"
 
 #ifndef PWM_CONTROL_H
 #define	PWM_CONTROL_H
@@ -13,15 +14,6 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-#define TICKS_PWM 64 // 125Hz
-    
-#define MAX_TARGET_CURRENT 200 // 400mV = 2A
-#define PWM_PERIOD 213 // 150kHz
-#define MAX_PWM_DC 128 // DC of 0.6 at 213 steps (150kHz)
-#define PWM_POS_INC 1
-#define PWM_NEG_INC -2
-#define CURRENT_DEADBAND 5 // 20mV on either side = 0.1A = 0.2A total deadband
     
 int16_t pwm_dc;
 uint16_t pwm_target_current;

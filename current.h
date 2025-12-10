@@ -12,12 +12,8 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-#define TICKS_CURRENT 4 // 2kHz
     
-#define CURRENT_HISTORY_LENGTH (16)
-#define CURRENT_HISTORY_SHIFT (4)
-#define CURRENT_ADC_CHANNEL ADC_CHANNEL_AN6
+#include "global_defs.h"
     
 typedef struct {
     uint16_t filtered_current;

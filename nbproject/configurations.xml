@@ -11,6 +11,9 @@
           <itemPath>mcc_generated_files/adc/adc.h</itemPath>
           <itemPath>mcc_generated_files/adc/adc_types.h</itemPath>
         </logicalFolder>
+        <logicalFolder name="clc" displayName="clc" projectFiles="true">
+          <itemPath>mcc_generated_files/clc/clc1.h</itemPath>
+        </logicalFolder>
         <logicalFolder name="fvr" displayName="fvr" projectFiles="true">
           <itemPath>mcc_generated_files/fvr/fvr.h</itemPath>
         </logicalFolder>
@@ -19,6 +22,7 @@
         </logicalFolder>
         <logicalFolder name="pwm" displayName="pwm" projectFiles="true">
           <itemPath>mcc_generated_files/pwm/pwm5.h</itemPath>
+          <itemPath>mcc_generated_files/pwm/pwm3.h</itemPath>
         </logicalFolder>
         <logicalFolder name="system" displayName="system" projectFiles="true">
           <itemPath>mcc_generated_files/system/interrupt.h</itemPath>
@@ -30,12 +34,15 @@
         <logicalFolder name="timer" displayName="timer" projectFiles="true">
           <itemPath>mcc_generated_files/timer/tmr1.h</itemPath>
           <itemPath>mcc_generated_files/timer/tmr1_deprecated.h</itemPath>
+          <itemPath>mcc_generated_files/timer/tmr2.h</itemPath>
+          <itemPath>mcc_generated_files/timer/tmr2_deprecated.h</itemPath>
         </logicalFolder>
       </logicalFolder>
       <itemPath>current.h</itemPath>
       <itemPath>pwm_control.h</itemPath>
       <itemPath>fault_monitor.h</itemPath>
       <itemPath>ui.h</itemPath>
+      <itemPath>global_defs.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -58,6 +65,11 @@
             <itemPath>mcc_generated_files/adc/src/adc.c</itemPath>
           </logicalFolder>
         </logicalFolder>
+        <logicalFolder name="clc" displayName="clc" projectFiles="true">
+          <logicalFolder name="src" displayName="src" projectFiles="true">
+            <itemPath>mcc_generated_files/clc/src/clc1.c</itemPath>
+          </logicalFolder>
+        </logicalFolder>
         <logicalFolder name="fvr" displayName="fvr" projectFiles="true">
           <logicalFolder name="src" displayName="src" projectFiles="true">
             <itemPath>mcc_generated_files/fvr/src/fvr.c</itemPath>
@@ -71,6 +83,7 @@
         <logicalFolder name="pwm" displayName="pwm" projectFiles="true">
           <logicalFolder name="src" displayName="src" projectFiles="true">
             <itemPath>mcc_generated_files/pwm/src/pwm5.c</itemPath>
+            <itemPath>mcc_generated_files/pwm/src/pwm3.c</itemPath>
           </logicalFolder>
         </logicalFolder>
         <logicalFolder name="system" displayName="system" projectFiles="true">
@@ -85,6 +98,7 @@
         <logicalFolder name="timer" displayName="timer" projectFiles="true">
           <logicalFolder name="src" displayName="src" projectFiles="true">
             <itemPath>mcc_generated_files/timer/src/tmr1.c</itemPath>
+            <itemPath>mcc_generated_files/timer/src/tmr2.c</itemPath>
           </logicalFolder>
         </logicalFolder>
       </logicalFolder>

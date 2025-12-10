@@ -80,11 +80,35 @@ uint8_t update_state_from_button(ui_model_t* ui_model){
     return go_to_sleep;
 }
 
-void set_status_leds(uint16_t green_pwm_level, bool off){
-    
+void set_status_leds(uint16_t red_pwm_level, bool off){
+    if (off){
+        IO_RA1_SetDigitalInput();
+        IO_RA2_SetDigitalInput();
+    } else {
+        if (!DEBUG){
+            IO_RA1_SetDigitalOutput(); // Set the PGCLK pin to input if debugging
+        }
+        IO_RA2_SetDigitalOutput();
+        
+        PWM3_LoadDutyValue(red_pwm_level);
+    }
 }
 
-uint8_t update_ui(ui_model_t* ui_model){
+uint16_t batt_level_to_pwm(uint16_t batt_level){
+    uint16_t pwm_out = 0;
+    if (batt_level <= BATT_EMPTY){
+        pwm_out = 0;
+    } else if (batt_level >= BATT_FULL){
+        pwm_out = 1023;
+    } else {
+        batt_level -= BATT_EMPTY;
+        uint32_t batt_scaled = ((uint32_t) batt_level) << 10;
+        pwm_out = batt_scaled / (BATT_FULL - BATT_EMPTY);
+    }
+    return pwm_out;
+}
+
+uint8_t update_ui(ui_model_t* ui_model, bool fault){
     uint8_t go_to_sleep = update_state_from_button(ui_model);
 
     if (!go_to_sleep){
@@ -96,11 +120,18 @@ uint8_t update_ui(ui_model_t* ui_model){
         set_target_current(target_current);
 
         // set status LEDs
-        if (ui_model->battery_undervoltage){
-            if (ui_model->led_count < (LED_BLINK_PERIOD / 2)) {
-                
+        if (ui_model->battery_undervoltage || fault){
+            uint16_t blink_pwm = 1023;
+            if (fault) blink_pwm = 511;
+            if (ui_model->led_count  & 0x8) {
+                set_status_leds(0, true);
+            } else {
+                set_status_leds(blink_pwm, false);
             }
+        } else {
+            set_status_leds(batt_level_to_pwm(ui_model->filtered_battery_voltage), false);
         }
+        ui_model->led_count += 1;
     } else {
         set_target_current(0);
     }
