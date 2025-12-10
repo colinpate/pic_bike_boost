@@ -1,18 +1,16 @@
 /**
- * System Driver Header File
- * 
- * @file system.h
- * 
- * @defgroup systemdriver System Driver
- * 
- * @brief This file contains the API prototype for the System Driver.
- *
- * @version Driver Version 1.0.1
- *
- * @version Package Version 1.0.3
+  * PWM3 Generated Driver File
+  *
+  * @file pwm3.c
+  *
+  * @ingroup pwm3
+  *
+  * @brief This file contains the API implementations for the PWM3 module.
+  *
+  * @version PWM3 Driver Version 2.0.4
 */
 
-/*
+ /*
 © [2025] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
@@ -32,35 +30,41 @@
     EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
     THIS SOFTWARE.
 */
+ 
+ /**
+  * Section: Included Files
+  */
 
-#ifndef SYSTEM_H
-#define	SYSTEM_H
+ #include <xc.h>
+ #include "../pwm3.h"
 
-#include <xc.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "config_bits.h"
-#include "../system/pins.h"
-#include "../clc/clc1.h"
-#include "../fvr/fvr.h"
-#include "../pwm/pwm3.h"
-#include "../system/interrupt.h"
-#include "../system/clock.h"
-#include "../adc/adc.h"
-#include "../pwm/pwm5.h"
-#include "../timer/tmr1.h"
-#include "../timer/tmr2.h"
+ /**
+  * Section: PWM Module APIs
+  */
 
-/**
- * @ingroup systemdriver
- * @brief Initializes the system module.
- * This routine is called only once during system initialization, before calling other APIs.
- * @param None.
- * @return None.
-*/
-void SYSTEM_Initialize(void);
+ void PWM3_Initialize(void)
+ {
+    // Set the PWM3 to the options selected in the User Interface
+    
+    // PWMPOL active_hi; PWMEN enabled; 
+    PWM3CON = 0x80;
+    
+    // PWMDCH 127; 
+    PWM3DCH = 0x7F;
 
-#endif	/* SYSTEM_H */
-/**
- End of File
-*/
+    // PWMDCL 3; 
+    PWM3DCL = 0xC0;
+    
+
+    CCPTMRSbits.P3TSEL = 0x0;
+
+ }
+
+ void PWM3_LoadDutyValue(uint16_t dutyValue)
+ {
+     // Writing to 8 MSBs of PWM duty cycle in PWMDCH register
+     PWM3DCH = (uint8_t) ((dutyValue & 0x03FCu) >> 2);
+     
+     // Writing to 2 LSBs of PWM duty cycle in PWMDCL register
+     PWM3DCL = (uint8_t) ((dutyValue & 0x0003u) << 6);
+ }

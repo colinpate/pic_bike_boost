@@ -43,7 +43,10 @@ void SYSTEM_Initialize(void)
     ADC_Initialize();
     PWM5_Initialize();
     TMR1_Initialize();
+    TMR2_Initialize();
+    CLC1_Initialize();
     FVR_Initialize();
+    PWM3_Initialize();
     INTERRUPT_Initialize();
 }
 

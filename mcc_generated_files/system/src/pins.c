@@ -53,7 +53,7 @@ void PIN_MANAGER_Initialize(void)
     /**
     ANSELx registers
     */
-    ANSELA = 0x11;
+    ANSELA = 0x17;
     ANSELC = 0xF;
 
     /**
@@ -84,6 +84,8 @@ void PIN_MANAGER_Initialize(void)
     PPS registers
     */
     RC4PPS = 0x10;  //RC4->PWM5:PWM5OUT;
+    RA2PPS = 0x0e;  //RA2->PWM3:PWM3OUT;
+    RA1PPS = 0x01;  //RA1->CLC1:CLC1OUT;
 
     /**
     APFCON registers

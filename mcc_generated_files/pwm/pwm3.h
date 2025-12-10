@@ -1,15 +1,13 @@
 /**
- * System Driver Header File
- * 
- * @file system.h
- * 
- * @defgroup systemdriver System Driver
- * 
- * @brief This file contains the API prototype for the System Driver.
+ * PWM3 Generated Driver API Header File
  *
- * @version Driver Version 1.0.1
+ * @file pwm3.h
  *
- * @version Package Version 1.0.3
+ * @defgroup pwm3 PWM3
+ *
+ * @brief This file contains the API prototypes for the PWM3 driver.
+ *
+ * @version PWM3 Driver Version 2.0.4
 */
 
 /*
@@ -33,34 +31,37 @@
     THIS SOFTWARE.
 */
 
-#ifndef SYSTEM_H
-#define	SYSTEM_H
+#ifndef PWM3_H
+ #define PWM3_H
+ 
+ /**
+  * Section: Included Files
+  */
 
-#include <xc.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "config_bits.h"
-#include "../system/pins.h"
-#include "../clc/clc1.h"
-#include "../fvr/fvr.h"
-#include "../pwm/pwm3.h"
-#include "../system/interrupt.h"
-#include "../system/clock.h"
-#include "../adc/adc.h"
-#include "../pwm/pwm5.h"
-#include "../timer/tmr1.h"
-#include "../timer/tmr2.h"
+ #include <xc.h>
+ #include <stdint.h>
+
+ /**
+  * Section: Macro Declarations
+ */
+
+ #define PWM3_INITIALIZE_DUTY_VALUE    511
+
 
 /**
- * @ingroup systemdriver
- * @brief Initializes the system module.
- * This routine is called only once during system initialization, before calling other APIs.
+ * @ingroup pwm3
+ * @brief Initializes the PWM3 interface.
  * @param None.
  * @return None.
-*/
-void SYSTEM_Initialize(void);
+ */
+ void PWM3_Initialize(void);
 
-#endif	/* SYSTEM_H */
-/**
- End of File
-*/
+ /**
+ * @ingroup pwm3
+ * @brief Loads the 16-bit duty cycle value.
+ * @param uint16_t dutyValue - PWM3 duty cycle value to be loaded.
+ * @return None.
+ */
+ void PWM3_LoadDutyValue(uint16_t dutyValue);
+ 
+ #endif	//PWM3_H
