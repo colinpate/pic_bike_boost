@@ -41,38 +41,41 @@ uint8_t update_state_from_button(ui_model_t* ui_model){
 
     if (!button_notpressed){
         if (ui_model->button_press_count > 0){
-            ui_model->button_press_count += 1;
-        } else {
-            ui_model->button_press_count = 1;
-        }
-    } else {
-        if (ui_model->button_press_count > 0){
             if (ui_model->button_press_count > BUTTON_PRESS_COUNT_POWER){
                 // button was held for long enough that we should toggle power
                 if (ui_model->brightness == BRIGHTNESS_SLEEP){
                     ui_model->brightness = BRIGHTNESS_25;
                 } else {
                     ui_model->brightness = BRIGHTNESS_SLEEP;
-                    go_to_sleep = 1;
+                    go_to_sleep = 1; // break the outer loop
                 }
+                ui_model->button_press_count = 0;
             } else {
-                // short press - cycle brightness
-                switch (ui_model->brightness){
-                    case BRIGHTNESS_25:
-                        ui_model->brightness = BRIGHTNESS_50;
-                        break;
-                    case BRIGHTNESS_50:
-                        ui_model->brightness = BRIGHTNESS_100;
-                        break;
-                    case BRIGHTNESS_100:
-                        ui_model->brightness = BRIGHTNESS_25;
-                        break;
-                    default:
-                        ui_model->brightness = BRIGHTNESS_SLEEP;
-                        go_to_sleep = 1;
-                        break;
-                }
+                ui_model->button_press_count += 1;
             }
+        } else {
+            ui_model->button_press_count = 1;
+        }
+    } else {
+        if (ui_model->button_press_count > 0){
+            // short press - cycle brightness
+            switch (ui_model->brightness){
+                case BRIGHTNESS_25:
+                    ui_model->brightness = BRIGHTNESS_50;
+                    break;
+                case BRIGHTNESS_50:
+                    ui_model->brightness = BRIGHTNESS_100;
+                    break;
+                case BRIGHTNESS_100:
+                    ui_model->brightness = BRIGHTNESS_25;
+                    break;
+                default:
+                    ui_model->brightness = BRIGHTNESS_SLEEP;
+                    go_to_sleep = 1;
+                    break;
+            }
+        } else if (ui_model->brightness == BRIGHTNESS_SLEEP){
+            go_to_sleep = 1;
         }
         ui_model->button_press_count = 0;
     }
@@ -105,6 +108,7 @@ uint16_t batt_level_to_pwm(uint16_t batt_level){
         uint32_t batt_scaled = ((uint32_t) batt_level) << 10;
         pwm_out = batt_scaled / (BATT_FULL - BATT_EMPTY);
     }
+    pwm_out = 1023 - pwm_out; // We're driving the red LED
     return pwm_out;
 }
 

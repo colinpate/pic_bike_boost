@@ -14,7 +14,7 @@ extern "C" {
 
 //
     
-#define DEBUG true
+#define DEBUG false
 
 // pwm_control
 
@@ -25,7 +25,7 @@ extern "C" {
 #define MAX_PWM_DC 128 // DC of 0.6 at 213 steps (150kHz)
 #define PWM_POS_INC 1
 #define PWM_NEG_INC -2
-#define CURRENT_DEADBAND 3 // 30mA on either side
+#define CURRENT_DEADBAND 4 // 40mA on either side
     
 // ui
 
@@ -40,7 +40,7 @@ extern "C" {
     
 #define BATT_UNDERVOLTAGE_MAX_CURRENT 0
 
-#define BUTTON_PRESS_COUNT_POWER 20 // 0.7s at 31Hz
+#define BUTTON_PRESS_COUNT_POWER 30 // 31Hz
 
 #define LED_BLINK_PERIOD 16 // 0.5s at 31Hz
 
