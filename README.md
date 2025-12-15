@@ -1,0 +1,1 @@
+Firmware for the PIC16F1765 in my battery-powered MTB headlight. Runs a current-mode boost converter to drive the LEDs, controls the LED current based on the mode selected by the user with a button, displays the battery level and fault status on a red and green LED, and monitors for faults. 
