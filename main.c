@@ -68,9 +68,9 @@ void tick(void){
 
 void init_ticks(void){
     tick_counter = 0;
-    tick_flag_current = 0;
-    tick_flag_pwm = 0;
-    tick_flag_ui = 0;
+    tick_flag_current = 1;
+    tick_flag_pwm = 1;
+    tick_flag_ui = 1;
     TMR1_OverflowCallbackRegister(tick);
 }
 
@@ -82,7 +82,6 @@ void disable_outputs(){
 
 int main(void)
 {
-    //__delay_ms(500);
     setup_ui(&ui_model);
 
     while (1){
@@ -103,24 +102,35 @@ int main(void)
         // Enable the Peripheral Interrupts 
         INTERRUPT_PeripheralInterruptEnable();
 
-        uint8_t go_to_sleep = 0;
+        bool go_to_sleep = false;
+        uint16_t target_current = 0;
         
         while(!go_to_sleep)
         {
             if (tick_flag_current){
                 tick_flag_current = 0;
+
                 update_current(&current_model);
             }
+            
             if (tick_flag_pwm){
                 tick_flag_pwm = 0;
-                uint16_t current = get_latest_current(&current_model);
-                update_fault_monitor(current);
-                
-                update_pwm(&current_model, is_fault_active());
+
+                uint16_t read_current = get_latest_current(&current_model);
+                update_fault_monitor(read_current);
+                bool disable_pwm = is_fault_active() || (!is_current_valid(&current_model));
+                update_pwm(read_current, target_current, disable_pwm);
             }
+
             if (tick_flag_ui) {
                 tick_flag_ui = 0;
-                go_to_sleep = update_ui(&ui_model, is_fault_active());
+
+                update_ui(
+                    &ui_model, 
+                    is_fault_active(), 
+                    &go_to_sleep,
+                    &target_current
+                )
             }
         }
 

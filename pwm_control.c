@@ -1,12 +1,9 @@
 
 #include "pwm_control.h"
-#include "current.h"
 
 void setup_pwm(void){
     // Enable high drive current on RC4 and 5
     HIDRVC = 0x30;
-    
-    set_target_current(0);
     
     uint16_t pwm_period = PWM_PERIOD;
     PWM5_PeriodSet(pwm_period); // set_dc loads the buffer so we don't need to
@@ -20,16 +17,15 @@ void set_dc(int16_t dc){
     PWM5_LoadBufferSet();
 }
 
-void set_target_current(uint16_t new_target_current){
-    if (new_target_current > MAX_TARGET_CURRENT){
+void update_dc(uint16_t read_current, uint16_t target_current){
+    int16_t increment = 0;
+    uint16_t pwm_target_current;
+
+    if (target_current > MAX_TARGET_CURRENT){
         pwm_target_current = MAX_TARGET_CURRENT;
     } else {
-        pwm_target_current = new_target_current;
+        pwm_target_current = target_current;
     }
-}
-
-void update_dc(uint16_t read_current){
-    int16_t increment = 0;
     
     if (read_current < CURRENT_DEADBAND){ // prevent unsigned int underflow
         if (pwm_target_current > CURRENT_DEADBAND){
@@ -55,9 +51,9 @@ void update_dc(uint16_t read_current){
     set_dc(new_dc);
 }
 
-void update_pwm(current_model_t *c_model, uint8_t fault_active){
-    if (is_current_valid(c_model) && (fault_active == 0)){
-        update_dc(get_latest_current(c_model));
+void update_pwm(uint16_t current, uint16_t target_current, bool disable){
+    if (!disable){
+        update_dc(current, target_current);
     } else {
         set_dc(0);
     }

@@ -4,6 +4,7 @@
 #include "ui.h"
 
 void setup_ui(ui_model_t* ui_model){
+    ui_model->state = ST_SLEEP;
     ui_model->brightness = BRIGHTNESS_25;
     ui_model->button_press_count = 0;
     ui_model->filtered_battery_voltage = BATT_UNDERVOLTAGE_RELEASE;
@@ -18,7 +19,7 @@ void update_battery_voltage(ui_model_t* ui_model){
     ui_model->filtered_battery_voltage += raw_battery_voltage >> 3;
 }
 
-uint8_t get_max_current (ui_model_t* ui_model){
+uint8_t check_battery_voltage(ui_model_t* ui_model){
     uint8_t max_current = 255;
     update_battery_voltage(ui_model);
     if (ui_model->filtered_battery_voltage < BATT_UNDERVOLTAGE){
@@ -30,57 +31,105 @@ uint8_t get_max_current (ui_model_t* ui_model){
         } else {
             max_current = BATT_UNDERVOLTAGE_MAX_CURRENT;
         }
+    } else if (ui_model->filtered_battery_voltage < BATT_UNDERVOLTAGE_RELEASE){
+        max_current = BATT_LOWVOLTAGE_MAX_CURRENT;
     }
     return max_current;
 }
 
-uint8_t update_state_from_button(ui_model_t* ui_model){
-    uint8_t go_to_sleep = 0;
-
+void update_state_from_button(ui_model_t* ui_model){
     uint8_t button_notpressed = IO_RA5_GetValue();
 
-    if (!button_notpressed){
-        if (ui_model->button_press_count > 0){
-            if (ui_model->button_press_count > BUTTON_PRESS_COUNT_POWER){
-                // button was held for long enough that we should toggle power
-                if (ui_model->brightness == BRIGHTNESS_SLEEP){
-                    ui_model->brightness = BRIGHTNESS_25;
-                } else {
-                    ui_model->brightness = BRIGHTNESS_SLEEP;
-                    go_to_sleep = 1; // break the outer loop
-                }
+    switch (ui_model->state){
+        case ST_SLEEP:
+            if (button_notpressed == 0){
                 ui_model->button_press_count = 0;
+                ui_model->state = ST_BUTTON_WAKE;
+            }
+            break;
+        
+        case ST_BUTTON_WAKE:
+            if (button_notpressed){
+                ui_model->state = ST_SLEEP;
             } else {
-                ui_model->button_press_count += 1;
+                if (ui_model->button_press_count > BUTTON_PRESS_COUNT_POWER){
+                    ui_model->state = ST_BUTTON_WAKE_WAIT;
+                } else {
+                    ui_model->button_press_count += 1;
+                }
             }
-        } else {
-            ui_model->button_press_count = 1;
-        }
+            break;
+
+        case ST_BUTTON_WAKE_WAIT:
+            if (button_notpressed){
+                ui_model->state = ST_ON;
+            }
+            break;
+
+        case ST_ON:
+            if (button_notpressed == 0){
+                ui_model->state = ST_BUTTON_PRESSED;
+                ui_model->button_press_count = 0;
+            }
+            break;
+
+        case ST_BUTTON_PRESSED:
+            if (button_notpressed){
+                switch (ui_model->brightness){
+                    case BRIGHTNESS_25:
+                        ui_model->brightness = BRIGHTNESS_50;
+                        break;
+                    case BRIGHTNESS_50:
+                        ui_model->brightness = BRIGHTNESS_100;
+                        break;
+                    case BRIGHTNESS_100:
+                        ui_model->brightness = BRIGHTNESS_25;
+                        break;
+                    default:
+                        ui_model->brightness = BRIGHTNESS_25;
+                        break;
+                }
+                ui_model->state = ST_ON;
+            } else {
+                if (ui_model->button_press_count > BUTTON_PRESS_COUNT_POWER){
+                    ui_model->state = ST_SLEEP;
+                } else {
+                    ui_model->button_press_count += 1;
+                }
+            }
+            break;
+
+        default:
+            ui_model->state = ST_SLEEP;
+            break;
+    }
+}
+
+void set_outputs(
+    ui_model_t* ui_model, 
+    bool fault, 
+    bool* go_to_sleep,
+    uint8_t* target_current
+){
+    *go_to_sleep = false;
+    uint8_t current_limit = check_battery_voltage(ui_model);
+
+    if (ui_model->brightness > current_limit){
+        *target_current = current_limit;
     } else {
-        if (ui_model->button_press_count > 0){
-            // short press - cycle brightness
-            switch (ui_model->brightness){
-                case BRIGHTNESS_25:
-                    ui_model->brightness = BRIGHTNESS_50;
-                    break;
-                case BRIGHTNESS_50:
-                    ui_model->brightness = BRIGHTNESS_100;
-                    break;
-                case BRIGHTNESS_100:
-                    ui_model->brightness = BRIGHTNESS_25;
-                    break;
-                default:
-                    ui_model->brightness = BRIGHTNESS_SLEEP;
-                    go_to_sleep = 1;
-                    break;
-            }
-        } else if (ui_model->brightness == BRIGHTNESS_SLEEP){
-            go_to_sleep = 1;
-        }
-        ui_model->button_press_count = 0;
+        *target_current = ui_model->brightness;
     }
 
-    return go_to_sleep;
+    switch (ui_model->state){
+        case ST_SLEEP:
+            *go_to_sleep = true;
+            *target_current = 0;
+            break;
+
+        case ST_BUTTON_WAKE:
+            *target_current = 0;
+            break;
+    }
 }
 
 void set_status_leds(uint16_t red_pwm_level, bool off){
@@ -112,33 +161,33 @@ uint16_t batt_level_to_pwm(uint16_t batt_level){
     return pwm_out;
 }
 
-uint8_t update_ui(ui_model_t* ui_model, bool fault){
-    uint8_t go_to_sleep = update_state_from_button(ui_model);
-
-    if (!go_to_sleep){
-        uint8_t target_current = ui_model->brightness;
-        uint8_t max_current = get_max_current(ui_model);
-        if (target_current > max_current) {
-            target_current = max_current; 
-        }
-        set_target_current(target_current);
-
-        // set status LEDs
-        if (ui_model->battery_undervoltage || fault){
-            uint16_t blink_pwm = 1023;
-            if (fault) blink_pwm = 511;
-            if (ui_model->led_count  & 0x8) {
-                set_status_leds(0, true);
-            } else {
-                set_status_leds(blink_pwm, false);
-            }
-        } else {
-            set_status_leds(batt_level_to_pwm(ui_model->filtered_battery_voltage), false);
-        }
-        ui_model->led_count += 1;
-    } else {
-        set_target_current(0);
+void update_status_leds(ui_model_t* ui_model, bool fault){
+    if (ui_model->state == ST_SLEEP){
+        set_status_leds(0, true);
+        return;
     }
+    if (ui_model->battery_undervoltage || fault){
+        uint16_t blink_pwm = 1023;
+        if (fault) blink_pwm = 511;
+        if (ui_model->led_count  & 0x8) {
+            set_status_leds(0, true);
+        } else {
+            set_status_leds(blink_pwm, false);
+        }
+    } else {
+        set_status_leds(batt_level_to_pwm(ui_model->filtered_battery_voltage), false);
+    }
+    ui_model->led_count += 1;
+}
 
-    return go_to_sleep;
+void update_ui(
+    ui_model_t* ui_model, 
+    bool fault, 
+    bool* go_to_sleep,
+    bool* disable_pwm,
+    uint8_t* target_current
+){
+    update_state_from_button(ui_model);
+    set_outputs(ui_model, fault, go_to_sleep, disable_pwm, target_current);
+    update_status_leds(ui_model, fault);
 }

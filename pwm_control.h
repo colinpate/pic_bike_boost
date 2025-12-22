@@ -16,13 +16,12 @@ extern "C" {
 #endif
     
 int16_t pwm_dc;
-uint16_t pwm_target_current;
 
 void setup_pwm(void);
 void set_dc(int16_t dc);
 void set_target_current(uint16_t new_target_current);
-void update_dc(uint16_t read_current);
-void update_pwm(current_model_t *c_model, uint8_t fault_active);
+void update_dc(uint16_t read_current, uint16_t target_current);
+void update_pwm(uint16_t current, uint16_t target_current, bool disable);
 
 #ifdef	__cplusplus
 }
